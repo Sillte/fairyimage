@@ -1,5 +1,5 @@
 from PIL import Image
-from typing import List, Sequence, Tuple, Callable
+from typing import List, Sequence, Tuple, Callable, Iterator
 import math
 import numpy as np
 from fairyimage.color import Color
@@ -53,6 +53,8 @@ class ImageArray:
                     for j, elem in enumerate(elems):
                         ret[i][j] = elem
                 return ret
+        elif isinstance(images, Iterator): 
+            return self._to_object_array(list(images))
         if isinstance(images, np.ndarray):
             assert images.dtype == object
             return images
