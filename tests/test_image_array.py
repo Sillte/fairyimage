@@ -20,9 +20,6 @@ def test_basic():
     images.save(path)
     assert path.exists()
 
-    # What happens if `images` are given to `np.ndarray` ? 
-    # fi.frame()
-
 def test_init(): 
 
     # When `np.array's Image is given, shape is maintained.`
@@ -66,6 +63,11 @@ def test_reshape():
     with pytest.raises(ValueError):
         # shape's dimension
         images.reshape((-1, -1), fill=True)
+
+    # `flat` call is also acceptable.
+    images = _gen_images(size=(32, 32), count=6 * 6)
+    assert fi.ImageArray(images).reshape(6, -1).shape == (6, 6)
+
 
 def test_map():
     """Test map func.

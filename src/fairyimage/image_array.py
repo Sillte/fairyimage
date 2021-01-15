@@ -71,12 +71,20 @@ class ImageArray:
     def shape(self):
         return self._images.shape
 
-    def reshape(self, shape, fill=None):
+    def reshape(self, shape, *args, fill=None):
         """Reshape `ImageArray`,
 
         Args:
             `fill`: It specifies behavior when `prod(shape)` is not equal to `prod(self.shape)`.
         """
+        # Solves `shape` / `*args`, 
+        # in order to enables the both of `reshape((2, 3))`, `reshape(2, 3)` possible.
+        if args:
+            if isinstance(shape, Sequence):
+                shape = [*shape, *args]
+            else:
+                shape = [shape, *args]
+
         # From now on `fill` should be performed.
         def _to_tuple(shape):
             if isinstance(shape, int):
