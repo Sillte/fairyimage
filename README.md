@@ -31,7 +31,7 @@ logos = [make_logo(str(n), size=50) for n in range(12)]
 image = thumbnail(logos)
 image.save("logos_thumbnail.png")
 ```
-![logos_thumbnail.png](static/logos_thumbnail.png)
+![logos_thumbnail](static/logos_thumbnail.png)
 
 
 
