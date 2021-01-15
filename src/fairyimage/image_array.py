@@ -1,9 +1,8 @@
 from PIL import Image
-from typing import List, Sequence, Tuple, Callable, Iterator
+from typing import List, Sequence, Tuple, Callable, Iterator, Union
 import math
 import numpy as np
 from fairyimage.color import Color
-
 
 
 class ImageArray:
@@ -11,7 +10,6 @@ class ImageArray:
     This behaves as `np.array`.
 
     * This class behaves as `np.array(images)` are given as object.
-
 
     Note
     --------
@@ -24,12 +22,19 @@ class ImageArray:
     """
 
     def __init__(self, images):
-        self._images = self._to_object_array(images)
+        images = self._to_object_array(images)
+        self._images = to_same_size(images) 
 
     @property
     def count(self):
         """Return the count of `images`."""
         return self._images.size
+
+    @property
+    def unit_size(self) -> Tuple[int, int]:
+        """The size of one image. 
+        """
+        return self._images[0][0].size
 
     def _to_object_array(self, images):
         """
@@ -55,7 +60,8 @@ class ImageArray:
                 return ret
         elif isinstance(images, Iterator): 
             return self._to_object_array(list(images))
-        if isinstance(images, np.ndarray):
+
+        elif isinstance(images, np.ndarray):
             assert images.dtype == object
             return images
 
@@ -72,7 +78,7 @@ class ImageArray:
             `fill`: It specifies behavior when `prod(shape)` is not equal to `prod(self.shape)`.
         """
         # From now on `fill` should be performed.
-        def _to_tuple(shape) -> Tuple[int, int]:
+        def _to_tuple(shape):
             if isinstance(shape, int):
                 if shape <= 0:
                     raise ValueError("When `shape` is int, it must be more than 1.")
@@ -88,7 +94,7 @@ class ImageArray:
                     raise ValueError(
                         f"`len(shape)` must be 1 or 2, but `f{len(shape)}`"
                     )
-            raise ValueError(f"Unaccepted `shape` type, `{type(shpae)}`")
+            raise ValueError(f"Unaccepted `shape` type, `{type(shape)}`")
 
         shape = _to_tuple(shape)
 
@@ -194,6 +200,27 @@ def _hstack(images: List[Image.Image]):
 def _vstack(images: List[Image.Image]):
     arrays = [np.array(image) for image in images]
     return Image.fromarray(np.vstack(arrays))
+
+
+def to_same_size(images: Union[Sequence[Image.Image], np.ndarray], size=None) -> List[Image.Image]:
+    """Return the images whose size are equal.
+    """
+    if isinstance(images, np.ndarray):
+        shape = images.shape
+        converted = to_same_size(list(images.ravel()), size=size)
+        ret = np.empty(len(converted), dtype=object)
+        for i, elem in enumerate(converted):
+            ret[i] = elem
+        return ret.reshape(shape)
+
+    if size is None:
+        sizes = [image.size for image in images]
+        ratios = [width / height for (width, height) in sizes]
+        ratio = np.median(ratios)
+        height = round(np.max([image.size[1] for image in images]))
+        size = (int(height * ratio), height)
+    return [image.resize(size) for image in images]
+
 
 
 if __name__ == "__main__":

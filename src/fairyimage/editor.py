@@ -15,10 +15,15 @@ def make_logo(
     backcolor: Optional[Color] = None,
     margin: Union[float, int] = 0.1,
     *,
-    size: Union[int, int]=None, 
+    size: Optional[Union[int, Tuple[int, int]]]=None, 
 ) -> Image.Image:
     """Making a logo.  
 
+    s: content of string.
+    fontsize: the size of font.
+    fontcolor: the color of font.
+    backcolor: the color of background
+    margin: what pixels or percentage is padded 
     size: the spceified size.
     """
 
@@ -28,6 +33,8 @@ def make_logo(
     if backcolor is None:
         backcolor = (0, 0, 0, 0)
     backcolor = Color(backcolor)
+    if isinstance(size, int):
+        size = (size, size)
 
     target = make_str(s, fontsize=fontsize, color=fontcolor)
 
@@ -58,7 +65,6 @@ def make_logo(
     else:
         acceptable_region = _from_padded_size(size, margin)
         target = contained(target, acceptable_region)
-        print(target.size)
         background = Image.new("RGBA", size=size, color=backcolor.rgba)
         return put(target , background)
 
@@ -140,6 +146,8 @@ def frame(
 def _frame_image(
     image: Image.Image, color: Color = (0, 0, 0), width: int = 3, inner=False
 ):
+    if width == 0:
+        return image.copy()
     cv = np.array(Color(color).rgba)
     img = np.array(image.convert("RGBA"))
     if not inner:
@@ -157,6 +165,8 @@ def _frame_image_array(
     """
     The inner line width must be the half of the outer line width.
     """
+    if width == 0:
+        return image.copy()
 
     def _inner(image):
         return _frame_image(image, color, width, inner)
@@ -165,11 +175,15 @@ def _frame_image_array(
 
 
 
-def contained(image: Image.Image, region: Tuple[int, int]):
+def contained(image: Image.Image, region: Tuple[int, int]) -> Image.Image:
     """Return the resized `Image.Image`,  
 
     * The image's fits insize region.
     * The aspect ratio of image is invariant. 
+
+    Note
+    ------------------------------------
+    Conceptually, this is equivalent to `PIL.Image.thumbnail`.   
     """
     size = image.size
     width, height = size
