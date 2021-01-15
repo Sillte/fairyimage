@@ -1,94 +1,43 @@
 # fairyimage  
 
-## Purpose
+### Purpose
 
-Your motivation is described here.   
+This is a personal practice for handling multiple images.  
+
+### Policy / Features / Limitation 
+
+* The class for handling images, `PIL.Image` is used.  
+* The number of images handled in this class is expected to few.     
+    - This is because too many images are rarely used for presentation purpose.    
+* Interface is as preferrable as it is similar to that of `numpy` . 
+* Typing Annotation is insufficient.   
+* Flake8 /mypy's modification is insufficient.    
 
 ### Install Procedure
 
 #### Pre-requirement
-
-- Python3.8+?   
-- git  
-- vim 
+- Python3.8+? 
 
 ```bat
 pip install -e .
 ```
 
-### Getting started for users.  
+### Gallery
+
+#### Making a thumbnail of logos. 
+```python
+from fairyimage import make_logo, thumbnail  
+logos = [make_logo(str(n), size=50) for n in range(12)]
+image = thumbnail(logos)
+image.save("logos_thumbnail.png")
+```
+![logos_thumbnail.png](static/logos_thumbnail.png)
+
+
+
 
 [tests/test_sample.py](./tests/test_sample.py) is the most basic and fundamental idea of the library is presented, 
-so first of all, check this file.    
 
 
-## Development procedures  
-
-## Getting started from `git`.    
-
-We assumes that you `git clone` this repository.  
-
-1. Execute `python ready.py` 
-    - You can get a virtual environment `venv` with which this library is installed. 
-
-
-## Getting started from `cookiecutter`.   
-
-1. Fulfill [./LICENSE](./LICENSE).
-    - The template license is [MIT](https://opensource.org/licenses/MIT) .  
-    - **Change** the year from which the project starts and Author's name.    
-
-2. Check and revise `README.md`  with knowledge at the present time. 
-    - Purpose
-    - Install procedure 
-
-3. Perform `git init`.  
-
-Then, basic preparation for development is completed.  
-
-
-#### Execution of test.
-
-* Execution of test: `pytest`
-* Code formatter: `black`, `flake8`. 
-* Dependency: See `setup.cfg`. 
-
-#### Functions related to development  
-
-Generally speaking, tests are the most crucial, coding format and type-annotations follow to that.   
-
-
-* `setuptools` / `pip` : required
-    - Command: `pip install .` 
-    - Configuration: `setup.cfg`
-
-* `pytest`: strongly recommended.
-    - Command: `pytest`
-    - Configuration: `pyproject.toml`
-    - Purpose: Check the codes and displaying usage to the user.  
-    - Comment: Only crude normal case check is desirable. 
-
-* `black`: if possible. 
-    - Command: `black`
-    - Configuration: `pyproject.toml`
-    - Purpose: Coding style check and revision.
-    - Comment: It's easy.  
-
-* `flake8`: if possible. 
-    - Command: `pytest`
-    - Configuration: `flake.ini`
-    - Purpose: To eliminate unnecessary or unnatural codes.  
-
-* `mypy`: if possible. 
-    - Command: `mypy`
-    - Configuration: `mypy.ini`
-    - Purpose: To check type annotation.
-    - Comment: It maybe a little bit hard to eliminate error completely.  
-
-
-#### Functions related to development  
-
-* `git`
-* `vim` 
 
 
