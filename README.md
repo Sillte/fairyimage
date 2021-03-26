@@ -17,6 +17,7 @@ This is a personal practice for handling multiple images.
 
 #### Pre-requirement
 - Python3.8+? 
+- Windows10 (Font's related problem...). 
 
 ```bat
 pip install -e .
@@ -33,7 +34,16 @@ image.save("logos_thumbnail.png")
 ```
 ![logos_thumbnail](static/logos_thumbnail.png)
 
+#### Making a captions of logos.
 
+```python
+from fairyimage import captionize, make_logo, contained
+jp_to_en = {"狐": "Fox", "人狼": "Werewolf", "村人": "Villager"}
+word_to_image = {jp: make_logo(en, fontcolor=(255, 0, 0)) for jp, en in jp_to_en.items()}
+image = contained(captionize(word_to_image), 300)
+image.save("fox_werewolf_villager.png")
+```
+![fox_werewolf_villager.png](static/fox_werewolf_villager.png)
 
 
 [tests/test_sample.py](./tests/test_sample.py) is the most basic and fundamental idea of the library is presented, 

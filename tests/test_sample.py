@@ -14,7 +14,7 @@ def test_logos_thumbnail():
     * It is possible to converted image within the specified size.
 
     ### Comments
-    * `make_logo` is used to
+    * `make_logo` is used to make an image of characters.
     * `thumbnail` is used to a small version of images.
     """
 
@@ -41,6 +41,22 @@ def test_put():
     background = Image.new("RGBA", size=(100, 100), color=(255, 0, 0))
     result = put(logo, background)
     assert result.size == background.size
+
+def test_captionize():
+    """ ### Content
+    * Display an image and term to
+
+    ### Comments.
+    Consider the situation where simply you would like to display an image,
+    with the background. 
+    """
+    from PIL import Image
+    from fairyimage import captionize, make_logo, contained
+    jp_to_en = {"狐": "Fox", "人狼": "Werewolf", "村人": "Villager"}
+    word_to_image = {jp: make_logo(en) for jp, en in jp_to_en.items()}
+    word_to_image = {word: contained(image, region=(64, 64)) for word, image in word_to_image.items()}
+    image = captionize(word_to_image)
+    assert isinstance(image, Image.Image)
 
 
 if __name__ == "__main__":

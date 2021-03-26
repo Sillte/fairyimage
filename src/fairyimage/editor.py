@@ -1,11 +1,13 @@
 import numpy as np
-from typing import Optional, Union, Tuple, Iterable
+from typing import Optional, Union, Tuple, Iterable, List, Dict, Any
 from PIL import Image, ImageOps
 import io
 import matplotlib.pyplot as plt
 
 from fairyimage.color import Color
 from fairyimage.image_array import ImageArray
+
+
 
 
 def make_logo(
@@ -94,7 +96,13 @@ def make_str(s: str, fontsize=48, color: Color = (0, 0, 0)) -> Image.Image:
 
     fig, ax = plt.subplots()
     color = Color(color)
-    t = ax.text(0.01, 0.01, s, color=_to_mcolor(color), fontsize=fontsize)
+    t = ax.text(0.01,
+                0.01,
+                s,
+                color=_to_mcolor(color),
+                fontsize=fontsize,
+                fontfamily="Meiryo",
+                fontweight='bold')
     fig.patch.set_alpha(0.0)
     fig.tight_layout()
     ax.axis("off")
@@ -193,6 +201,64 @@ def contained(image: Image.Image, region: Tuple[int, int]) -> Image.Image:
         raise ValueError(f"Invalid region specification. `{region}`")
     ratio = min(region[0] / size[0], region[1] / size[1])
     return image.resize((round(size[0] * ratio), round(size[1] * ratio)))
+
+
+def equalize(images: Union[List[Image.Image], Dict[Any, Image.Image]],
+             mode=None, 
+             *,
+             axis=None):
+    """Equalize the size of images. 
+
+    Args:
+        mode: Determines whether `width` should  be equal or `height` should be equal.
+              It may be specified by `axis` argument. it is used.
+              If `None`, it is chosen so that average variation of ratio should be the lower. 
+        axis: (Default:  `None`) If `mode` is None, then it is used for deciding `mode`. 
+
+    Conditions:
+    * Aspect ratio is invariant. 
+    """
+
+    if isinstance(images, dict):
+        keys = list(images.keys())
+        values = [images[key] for key in keys]
+        result = equalize(values, mode=mode)
+        return {key: ret for key, ret in zip(keys, result)}
+
+    sizes = [image.size for image in images]
+
+    assert axis in {None, 0, 1}
+    if mode is None:
+        w_length = min(size[0] for size in sizes)
+        w_cost = np.mean([ abs(1 - w_length / size[0])for size in sizes])
+        h_length = min(size[1] for size in sizes)
+        h_cost = np.mean([ abs(1 - h_length / size[1])  for size in sizes])
+        if w_cost < h_cost:
+            mode = "width"
+        else:
+            mode = "height"
+
+    if mode == 0:
+        mode = "height"
+    elif mode == 1:
+        mode = "width"
+
+    if mode not in {"width", "height"}:
+        raise ValueError("Invalid specification of mode.", mode)
+
+    if mode == "width":
+        length = min(size[0] for size in sizes)
+    else:
+        length = min(size[1] for size in sizes)
+    r_images = []
+    for image in images:
+        if mode == "width":
+            size = (length, image.size[1] * (length / image.size[0]))
+        else:
+            size = (image.size[0] * (length / image.size[1]), length)
+        size = tuple(map(round, size))
+        r_images.append(image.resize(size, Image.BICUBIC))
+    return r_images
 
 
 if __name__ == "__main__":
