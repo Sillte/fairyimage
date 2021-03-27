@@ -70,6 +70,7 @@ data = fi.equalize(data, mode="center")
 image = fi.captionize(data, align="resize")
 image.save("vstack_hstack.png")
 ```
+![vstack_hstack.png](static/vstack_hstack.png)
 
 
 [tests/test_sample.py](./tests/test_sample.py) is the most basic and fundamental idea of the library is presented, 
