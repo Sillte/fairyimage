@@ -2,7 +2,7 @@
 
 """
 
-from typing import Union, List
+from typing import Union, List, Tuple, Optional
 from PIL import Image
 import numpy as np
 
@@ -70,7 +70,12 @@ def concatenate(images: List[Image.Image], axis=0, align=AlignMode("start")):
         images: the target images for
         axis: 0 -> horizontally, 1 -> vertically.
     """
+    if axis == "width":
+        axis = 1
+    if axis == "height":
+        axis = 0
     assert axis in {0, 1}, "Axis must be in {0, 1}"
+
     c_axis = axis
     nc_axis = 0 if c_axis == 1 else 1
 
@@ -135,3 +140,42 @@ def vstack(images: List[Image.Image], align=AlignMode("start")):
 
 def hstack(images: List[Image.Image], align=AlignMode("start")):
     return concatenate(images, axis=1, align=align)
+
+
+def yield_size(image, *,
+               size: Optional[Tuple[int, int]] = None, height: Optional[int]= None, width: Optional[int]=None):
+
+    """Based on the given information, returns the size.
+    """
+    if size is None and height is None and width is None:
+        size = image.size
+    elif size:
+        size = size
+    elif width is not None and height is not None:
+        size = (width, height)
+    elif width is not None and height is None:
+        height = round(width / image.size[0]  * image.size[1])
+        size = (width, height)
+    elif width is None and height is not None:
+        width = round(height / image.size[1] * image.size[0])
+        size = (width, height)
+    else: 
+        raise ValueError("Necessary information is not given to `yield_size`. ")
+    return size
+
+
+def resize(image:Image.Image,
+           size: Optional[Tuple[int, int]] = None,
+           *,
+           height: Optional[int]= None,
+           width: Optional[int]=None): 
+    """Resize. 
+    If `size` is given, it is the same as `PIL.Image.Image.resize`.
+    If either `height` or `width` is given, then the other is determined so that aspect is maintained.
+
+    """
+    if size is None and height is None and width in None:
+        raise ValueError(f"In `fairyimage.resize`, you should specify either `size`, `height`, or `width`. ")
+    size = yield_size(size=size, height=height, width=width)
+    return image.resize(size)
+

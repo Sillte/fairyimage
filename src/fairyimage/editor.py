@@ -6,8 +6,7 @@ import matplotlib.pyplot as plt
 
 from fairyimage.color import Color
 from fairyimage.image_array import ImageArray
-
-
+from fairyimage.operations import AlignMode, concatenate, resize, yield_size
 
 
 def make_logo(
@@ -18,6 +17,8 @@ def make_logo(
     margin: Union[float, int] = 0.1,
     *,
     size: Optional[Union[int, Tuple[int, int]]]=None, 
+    width: int = None,
+    height: int = None,
 ) -> Image.Image:
     """Making a logo.  
 
@@ -35,8 +36,12 @@ def make_logo(
     if backcolor is None:
         backcolor = (0, 0, 0, 0)
     backcolor = Color(backcolor)
+
+    # Solving the parameters of `size`, `height` and `width`.  
     if isinstance(size, int):
         size = (size, size)
+    if height is not None and width is not None:
+        size = (width, height)
 
     target = make_str(s, fontsize=fontsize, color=fontcolor)
 
@@ -60,17 +65,19 @@ def make_logo(
             margin = - margin
         return _to_padded_size(size, margin)
 
-    if size is None:
-        b_size = _to_padded_size(target.size, margin)
-        background = Image.new("RGBA", size=b_size, color=backcolor.rgba)
-        return put(target, background)
-    else:
+    if size: 
         acceptable_region = _from_padded_size(size, margin)
         target = contained(target, acceptable_region)
         background = Image.new("RGBA", size=size, color=backcolor.rgba)
         return put(target , background)
-
-    return put(target, background)
+    else:
+        b_size = _to_padded_size(target.size, margin)
+        background = Image.new("RGBA", size=b_size, color=backcolor.rgba)
+        result = put(target, background)
+        if width is not None or height is not None:
+            size = yield_size(result, height=height, width=width)
+            result = result.resize(size)
+        return result
 
 
 def make_str(s: str, fontsize=48, color: Color = (0, 0, 0)) -> Image.Image:
@@ -204,16 +211,18 @@ def contained(image: Image.Image, region: Tuple[int, int]) -> Image.Image:
 
 
 def equalize(images: Union[List[Image.Image], Dict[Any, Image.Image]],
-             mode=None, 
-             *,
-             axis=None):
+             axis=None, 
+             mode="resize"):
     """Equalize the size of images. 
 
     Args:
-        mode: Determines whether `width` should  be equal or `height` should be equal.
+        axis: Determines whether `width` should  be equal or `height` should be equal.
               It may be specified by `axis` argument. it is used.
-              If `None`, it is chosen so that average variation of ratio should be the lower. 
-        axis: (Default:  `None`) If `mode` is None, then it is used for deciding `mode`. 
+              If `both` or  `all`, then `width` and `height` becomes equal. 
+
+        mode: Specify how to 
+            - `AlignMode`: `padding` is performed. 
+            - "resize": `resize` is performed.
 
     Conditions:
     * Aspect ratio is invariant. 
@@ -222,43 +231,111 @@ def equalize(images: Union[List[Image.Image], Dict[Any, Image.Image]],
     if isinstance(images, dict):
         keys = list(images.keys())
         values = [images[key] for key in keys]
-        result = equalize(values, mode=mode)
+        result = equalize(values, axis=axis, mode=mode)
         return {key: ret for key, ret in zip(keys, result)}
 
     sizes = [image.size for image in images]
 
-    assert axis in {None, 0, 1}
-    if mode is None:
+
+    if axis is None:
         w_length = min(size[0] for size in sizes)
-        w_cost = np.mean([ abs(1 - w_length / size[0])for size in sizes])
+        w_costs = [abs(1 - w_length / size[0]) for size in sizes]
+        w_cost = np.mean(w_costs)
         h_length = min(size[1] for size in sizes)
-        h_cost = np.mean([ abs(1 - h_length / size[1])  for size in sizes])
-        if w_cost < h_cost:
-            mode = "width"
+        h_costs = [abs(1 - h_length / size[1])  for size in sizes]
+        h_cost = np.mean(h_costs)
+        if np.max(np.max(w_costs)) < 0.08:
+            axis = "both"
+        elif w_cost < h_cost:
+            axis = "width"
         else:
-            mode = "height"
+            axis = "height"
 
-    if mode == 0:
-        mode = "height"
-    elif mode == 1:
-        mode = "width"
+    if axis == 0:
+        axis = "height"
+    elif axis == 1:
+        axis = "width"
 
-    if mode not in {"width", "height"}:
-        raise ValueError("Invalid specification of mode.", mode)
+    if axis in {"both", "all", "height-width"}:
+        if mode != "resize":
+            print(f"Specified mode is not `resize`, but performed `resize` in `equalize`.")
+        width = int(round(np.mean([size[0] for size in sizes])))
+        height = int(round(np.mean([size[1] for size in sizes])))
+        return [image.resize((width, height)) for image in images]
 
-    if mode == "width":
-        length = min(size[0] for size in sizes)
+    if axis not in {"width", "height"}:
+        raise ValueError("Invalid specification of axis.", axis)
+
+
+    if mode == "resize":
+        if axis == "width":
+            length = min(size[0] for size in sizes)
+        else:
+            length = min(size[1] for size in sizes)
+        r_images = []
+        for image in images:
+            if axis == "width":
+                size = (length, image.size[1] * (length / image.size[0]))
+            else:
+                size = (image.size[0] * (length / image.size[1]), length)
+            size = tuple(map(round, size))
+            r_images.append(image.resize(size, Image.BICUBIC))
+        return r_images
+
+    try:
+        mode = AlignMode(mode)
+    except Exception as e:
+        print(e)
+        pass
     else:
-        length = min(size[1] for size in sizes)
-    r_images = []
-    for image in images:
-        if mode == "width":
-            size = (length, image.size[1] * (length / image.size[0]))
+
+        r_images = []
+        if axis == "width":
+            length = max(size[0] for size in sizes)
         else:
-            size = (image.size[0] * (length / image.size[1]), length)
-        size = tuple(map(round, size))
-        r_images.append(image.resize(size, Image.BICUBIC))
-    return r_images
+            length = max(size[1] for size in sizes)
+
+        def _make_c_targets(image, axis, offset, mode):
+            size = list(image.size)
+            pil_axis = 0 if axis == "width" else 1
+            # If offset == 1, then `center` is equal to `START`.
+            if offset == 1:
+                mode = AlignMode.START
+            if mode == AlignMode.START or mode == AlignMode.END:
+                size[pil_axis] = offset
+                pad = Image.new("RGBA", size=size, color=(255, 255, 255, 0))
+                if mode == AlignMode.START:
+                    targets = (image, pad)
+                if mode == AlignMode.END:
+                    targets = (pad, image)
+                return targets
+            if mode == AlignMode.CENTER:
+                s_offset = offset // 2
+                s_size = list(size)
+                s_size[pil_axis] = s_offset
+                s_pad = Image.new("RGBA", size=s_size, color=(255, 255, 255, 0))
+                e_offset = offset - s_offset
+                e_size = list(size)
+                e_size[pil_axis] = e_offset
+                e_pad = Image.new("RGBA", size=e_size, color=(255, 255, 255, 0))
+                targets = (s_pad, image, e_pad)
+                return targets
+            raise NotImplementedError("Bug.", mode)
+
+
+        for image in images:
+            if axis == "width":
+                offset = length - image.size[0]
+            else:
+                offset = length - image.size[1]
+            if offset: 
+                targets = _make_c_targets(image, axis, offset, mode)
+                r_images.append(concatenate(targets, axis=axis))
+            else:
+                r_images.append(image)
+        return r_images
+
+    raise ValueError("Invalid specification of mode", mode)
 
 
 if __name__ == "__main__":

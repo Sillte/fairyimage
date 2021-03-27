@@ -30,7 +30,7 @@ def test_put():
     """ ### Content
     * Put an image to another image.
 
-    ### Comments.
+    ### Comment.
     Consider the situation where simply you would like to display an image,
     with the background. 
     """
@@ -44,11 +44,11 @@ def test_put():
 
 def test_captionize():
     """ ### Content
-    * Display an image and term to
+    * Display an image with the title.
 
-    ### Comments.
-    Consider the situation where simply you would like to display an image,
-    with the background. 
+    ### Comment.
+    Consider the situation where you would like to display an image
+    with the short word(s). 
     """
     from PIL import Image
     from fairyimage import captionize, make_logo, contained
@@ -56,6 +56,21 @@ def test_captionize():
     word_to_image = {jp: make_logo(en) for jp, en in jp_to_en.items()}
     word_to_image = {word: contained(image, region=(64, 64)) for word, image in word_to_image.items()}
     image = captionize(word_to_image)
+    assert isinstance(image, Image.Image)
+
+
+def test_equalize():
+    """ ### Content
+    * It is modified so that the length of images should be the same.
+
+    ### Comment.
+    * `AlignMode` / `resize` should be kept in mind  for `equalize`.
+    """
+    from PIL import Image
+    from fairyimage import make_logo, equalize, vstack
+    logos = [make_logo(f"{'O'* (index + 1)}", fontcolor=(0, 128, 189)) for index in range(5)]
+    logos = equalize(logos, axis="width")
+    image = vstack(logos)
     assert isinstance(image, Image.Image)
 
 
