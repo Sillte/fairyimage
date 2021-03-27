@@ -46,7 +46,7 @@ image.save("fox_werewolf_villager.png")
 ![fox_werewolf_villager.png](static/fox_werewolf_villager.png)
 
 #### Example of `hstack`, `vstack` and `equalize`. 
-```
+```python
 import fairyimage as fi
 
 black = (0, 0, 0)
