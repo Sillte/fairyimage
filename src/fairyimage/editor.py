@@ -120,7 +120,7 @@ def make_str(s: str, fontsize=48, color: Color = (0, 0, 0)) -> Image.Image:
         image.load()
         inv_image = ImageOps.invert(image.convert("RGB"))
         cropped = image.crop(inv_image.getbbox())
-    fig.clear()
+    plt.close(fig)
     return cropped
 
 

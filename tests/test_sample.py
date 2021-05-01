@@ -6,10 +6,11 @@
 """
 
 import pytest
-import fairyimage  
+import fairyimage
 
-def test_logos_thumbnail(): 
-    """ ### Content
+
+def test_logos_thumbnail():
+    """### Content
     * Generate 12 images which displays the number from 0 to 11.
     * It is possible to converted image within the specified size.
 
@@ -18,21 +19,23 @@ def test_logos_thumbnail():
     * `thumbnail` is used to a small version of images.
     """
 
-    from fairyimage import make_logo, thumbnail  
+    from fairyimage import make_logo, thumbnail
     from PIL import Image
+
     # `make_logo` makes images of string.
     logos = [make_logo(str(n), size=50) for n in range(12)]
     # `thumbnail` generates a thumbnail version of images.
     image = thumbnail(logos)
     assert isinstance(image, Image.Image)
 
+
 def test_put():
-    """ ### Content
+    """### Content
     * Put an image to another image.
 
     ### Comment.
     Consider the situation where simply you would like to display an image,
-    with the background. 
+    with the background.
     """
     from fairyimage import make_logo, put
     from PIL import Image
@@ -42,25 +45,29 @@ def test_put():
     result = put(logo, background)
     assert result.size == background.size
 
+
 def test_captionize():
-    """ ### Content
+    """### Content
     * Display an image with the title.
 
     ### Comment.
     Consider the situation where you would like to display an image
-    with the short word(s). 
+    with the short word(s).
     """
     from PIL import Image
     from fairyimage import captionize, make_logo, contained
+
     jp_to_en = {"狐": "Fox", "人狼": "Werewolf", "村人": "Villager"}
     word_to_image = {jp: make_logo(en) for jp, en in jp_to_en.items()}
-    word_to_image = {word: contained(image, region=(64, 64)) for word, image in word_to_image.items()}
+    word_to_image = {
+        word: contained(image, region=(64, 64)) for word, image in word_to_image.items()
+    }
     image = captionize(word_to_image)
     assert isinstance(image, Image.Image)
 
 
 def test_equalize():
-    """ ### Content
+    """### Content
     * It is modified so that the length of images should be the same.
 
     ### Comment.
@@ -68,10 +75,33 @@ def test_equalize():
     """
     from PIL import Image
     from fairyimage import make_logo, equalize, vstack
-    logos = [make_logo(f"{'O'* (index + 1)}", fontcolor=(0, 128, 189)) for index in range(5)]
+
+    logos = [
+        make_logo(f"{'O'* (index + 1)}", fontcolor=(0, 128, 189)) for index in range(5)
+    ]
     logos = equalize(logos, axis="width")
     image = vstack(logos)
     assert isinstance(image, Image.Image)
+
+
+def test_conversion():
+    """### Comment
+    * This is used to convert some data into `PIL.Image.ImageP`.
+
+    ### Comment.
+    """
+    from PIL import Image
+    from pathlib import Path
+    from fairyimage import from_source
+
+    script = Path(__file__).read_text("utf8")
+    image = from_source(script)
+    assert isinstance(image, Image.Image)
+
+    # List of Image are generated.
+    images = from_source(script, n_image=2)
+    assert len(images) == 2
+    assert all(isinstance(elem, Image.Image) for elem in images)
 
 
 if __name__ == "__main__":

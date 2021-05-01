@@ -72,6 +72,23 @@ image.save("vstack_hstack.png")
 ```
 ![vstack_hstack.png](static/vstack_hstack.png)
 
+#### Example of `conversion`
+```python
+"""
+Internally, `pygments` is used.
+"""
+
+from pathlib import Path
+import fairyimage as fi
+from fairyimage import from_source
+
+
+images = from_source(Path(__file__), style="friendly", font_size=18, n_image=2)
+image = fi.hstack(images, )
+image.save("pygments_usage.png")
+```
+![pygments_usage.png](static/pygments_usage.png)
+
 
 [tests/test_sample.py](./tests/test_sample.py) is the most basic and fundamental idea of the library is presented, 
 
