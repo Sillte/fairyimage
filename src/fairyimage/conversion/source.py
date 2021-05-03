@@ -80,8 +80,9 @@ class PygmentsCaller:
         if isinstance(lexer, Lexer):
             return lexer
         elif isinstance(lexer, str):
-            lexer = lexer.capitalize()
             lexer_cls = find_lexer_class(lexer)
+            if not lexer_cls:
+                raise ValueError(f"Cannot find `{lexer}` Lexer.")
             return lexer_cls()
         elif lexer is None:
             if isinstance(source, Path):
