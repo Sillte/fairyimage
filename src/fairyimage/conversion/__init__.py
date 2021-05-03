@@ -3,7 +3,6 @@ from fairyimage.conversion import source  # NOQA
 from fairyimage.conversion.source import PygmentsCaller  # NOQA
 from figpptx import image_misc
 import numpy as np
-import pandas as pd
 
 import matplotlib.pyplot as plt 
 from matplotlib.artist import Artist
@@ -79,20 +78,4 @@ def from_object(arg, **kwargs):
 
 
 if __name__ == "__main__":
-    from html2image import Html2Image
-    hti = Html2Image()
-    hti.screenshot()
-    hti.screenshot(url='https://www.python.org', save_as='python_org.png')
-    exit(0)
-
-    import numpy as np 
-    df = pd.DataFrame(np.random.normal(size=(3, 4)))
-    image = from_df(df)
-    image.show()
-    image.save("test.png")
-    exit(0)
-
-    from pathlib import Path
-
-    image = from_source(Path(__file__).read_text())
-    image.show()
+    pass
