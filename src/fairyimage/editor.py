@@ -255,6 +255,8 @@ def equalize(images: Union[List[Image.Image], Dict[Any, Image.Image]],
         axis = "height"
     elif axis == 1:
         axis = "width"
+    elif set(axis) == {0, 1}:
+        axis = "both"
 
     if axis in {"both", "all", "height-width"}:
         if mode != "resize":
