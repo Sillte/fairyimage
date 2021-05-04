@@ -16,6 +16,11 @@ I believe you can revise it for your environment.
 
 * https://github.com/pygments/pygments/blob/2.8.1/pygments/formatters/img.py#L166
 
+
+Crucial
+---------
+At `fontname` of `WinFontController`, `Meiryo` does not work...
+
 """
 
 
@@ -80,18 +85,39 @@ class WinFontCollector:
 
         # General -> Specific.
         targets = ["NORMAL", "ITALIC", "BOLD", "BOLDITALIC"]
+        def _to_target(tag, func):
+            font = func()
+            name, style = font.getname()
+            #print("tag" ,tag, name, style)
+            result = None
+            for target in targets:
+                for word in reversed(STYLES[target]):  # Specific to general 
+                    if word.lower().find(style.lower()) != -1:
+                        result = target
+                        break
+                if result:
+                    break
+            del font
+            if result:
+                return result
+            # If `ImageFont.getname()`,  does not work, then `tag` is used.
+            for target in targets:
+                for word in reversed(STYLES[target]):  # Specific to general 
+                    if word and tag.lower().find(word.lower()) != -1:
+                        result = target
+                if result:
+                    break
+            return result
+
+
         assert STYLES.keys() == set(targets)
         candidates = defaultdict(list)  # Element (tag, func)
         for tag, func in pair_infos:
-            for target in reversed(targets):  # Specific has higher priority.
-                for word in STYLES[target]:
-                    if tag.find(word) != -1:
-                        pair = (tag, func)
-                        candidates[target].append(pair)
-                        break
-                else:
-                    continue
-                break
+            target = _to_target(tag, func)
+            #print("target", target)
+            if target:
+                pair = (tag, func)
+                candidates[target].append(pair)
 
         if not candidates["NORMAL"]:  # NORMAL is fundamental.
             # FALLBACK
@@ -237,3 +263,8 @@ class WinFontCollector:
         funcs = [lambda: font_open(index) for index, tag in enumerate(tags)]
         return list(zip(tags, funcs))
 
+if __name__ == "__main__":
+    fonts = WinFontCollector.get_fonts("Meiryo UI", 18)
+    for style, font in fonts.items():
+        print(font.getname())
+    
