@@ -17,6 +17,12 @@ I believe you can revise it for your environment.
 * https://github.com/pygments/pygments/blob/2.8.1/pygments/formatters/img.py#L166
 
 
+Specification (2021/05/05)
+--------------------
+* `tag` (str): the string specified in registry, which .is regarded as specifier of font file.
+    - For `ttc` files, `&` is typicall used as a separator of `ttf` files... but it's just a guess.
+
+
 Crucial
 ---------
 At `fontname` of `WinFontController`, `Meiryo` does not work...
@@ -24,11 +30,12 @@ At `fontname` of `WinFontController`, `Meiryo` does not work...
 """
 
 
-from PIL import Image, ImageFont
 from collections import defaultdict
 import re
+import os
 import winreg
 from pathlib import Path
+from PIL import Image, ImageFont
 
 import numpy as np
 from pygments.formatters.img import STYLES

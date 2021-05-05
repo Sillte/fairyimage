@@ -54,28 +54,5 @@ def from_artists(axes, **kwargs):
     return image_misc.artists_to_image(axes, is_tight, **kwargs)
 
 
-def from_numpy(array, **kwargs):
-    # [TODO] For [0, 1] ndarrays, you may take counter-measure.
-    #
-    return Image.fromarray(array.astype(np.uint8))
-
-
-
-def from_object(arg, **kwargs):
-    """Convert to `PIL.Image`, on the basis of `type` of `arg`."""
-    if isinstance(arg, Figure):
-        return from_figure(arg, **kawrgs)
-    elif isinstance(arg, Axes):
-        return from_axes(arg, **kawrgs)
-    elif isinstance(arg, Artists):
-        return from_artists(arg, **kwargs)
-    elif isinstance(arg, np.ndarray):
-        return from_numpy(arg, **kwargs)
-    elif isinstance(arg, str):
-        return from_source(arg, **kwargs)
-    else:
-        raise ValueError("Given arg `(type={type(arg)})` cannot be handled.")
-
-
 if __name__ == "__main__":
     pass
