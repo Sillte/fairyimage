@@ -1,13 +1,15 @@
 from PIL import Image
-from fairyimage.conversion import source  # NOQA
-from fairyimage.conversion.source import PygmentsCaller  # NOQA
-from figpptx import image_misc
 import numpy as np
 
 import matplotlib.pyplot as plt 
 from matplotlib.artist import Artist
 from matplotlib.figure import Figure
 from matplotlib.axes import Axes
+
+from figpptx import image_misc   # NOQA
+from fairyimage.conversion import source  # NOQA
+from fairyimage.conversion.source import PygmentsCaller  # NOQA
+from fairyimage.conversion.latex import via_matplotlib   # NOQA
 
 
 
@@ -53,6 +55,9 @@ def from_artists(axes, **kwargs):
     is_tight = kwargs.pop("is_tight", True)
     return image_misc.artists_to_image(axes, is_tight, **kwargs)
 
+
+def from_latex(latex, **kwargs):
+    return via_matplotlib(latex, **kwargs)
 
 if __name__ == "__main__":
     pass

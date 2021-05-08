@@ -30,8 +30,10 @@ def via_matplotlib(formula, fontsize=18) -> Image.Image:
     plt.close(fig)
     return image
 
+
 if __name__ == "__main__":
     image = via_matplotlib(r"\frac{\sqrt{2}^2}{35 - 5} - \sqrt{3} = ?", 72)
     print(image.size)
+    image.show()
 
 
