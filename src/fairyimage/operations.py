@@ -9,6 +9,7 @@ import numpy as np
 from fairyimage import version  # NOQA.
 from fairyimage.color import Color  # NOQA
 
+
 class AlignMode:
     """Specify the mode used for aligning.
     Here,
@@ -63,6 +64,7 @@ class AlignMode:
     def __eq__(self, other):
         return self.mode == AlignMode(other).mode
 
+
 def concatenate(images: List[Image.Image], axis=0, align=AlignMode("start")):
     """Concatenate the multiple images.
 
@@ -110,15 +112,19 @@ def concatenate(images: List[Image.Image], axis=0, align=AlignMode("start")):
             pad_array = np.array(pad)
             return np.concatenate((pad_array, array), axis=nc_axis)
         elif align == AlignMode.CENTER:
-            s_offset = offset  // 2 
-            e_offset = offset - s_offset 
+            s_offset = offset // 2
+            e_offset = offset - s_offset
             if s_offset:
                 height, width = _to_height_width(array, s_offset)
-                s_pad = np.array(Image.new("RGBA", size=(width, height), color=(255, 255, 255, 0)))
+                s_pad = np.array(
+                    Image.new("RGBA", size=(width, height), color=(255, 255, 255, 0))
+                )
             else:
                 s_pad = None
             height, width = _to_height_width(array, e_offset)
-            e_pad = np.array(Image.new("RGBA", size=(width, height), color=(255, 255, 255, 0)))
+            e_pad = np.array(
+                Image.new("RGBA", size=(width, height), color=(255, 255, 255, 0))
+            )
             arrays = [elem for elem in (s_pad, array, e_pad) if elem is not None]
             return np.concatenate(arrays, axis=nc_axis)
         raise NotImplementedError("Implementation Error.", align)
@@ -135,47 +141,59 @@ def concatenate(images: List[Image.Image], axis=0, align=AlignMode("start")):
     array = np.concatenate(arrays, axis=c_axis)
     return Image.fromarray(array)
 
+
 def vstack(images: List[Image.Image], align=AlignMode("start")):
     return concatenate(images, axis=0, align=align)
+
 
 def hstack(images: List[Image.Image], align=AlignMode("start")):
     return concatenate(images, axis=1, align=align)
 
 
-def yield_size(image, *,
-               size: Optional[Tuple[int, int]] = None, height: Optional[int]= None, width: Optional[int]=None):
+def yield_size(
+    image,
+    *,
+    size: Union[Tuple[int, int], float, None] = None,
+    height: Optional[int] = None,
+    width: Optional[int] = None,
+):
 
-    """Based on the given information, returns the size.
-    """
+    """Based on the given information, returns the size."""
     if size is None and height is None and width is None:
         size = image.size
     elif size:
-        size = size
+        if isinstance(size, (float, int)):
+            size = tuple(map(lambda x: round(x * size), image.size))
+        else:
+            size = size
     elif width is not None and height is not None:
         size = (width, height)
     elif width is not None and height is None:
-        height = round(width / image.size[0]  * image.size[1])
+        height = round(width / image.size[0] * image.size[1])
         size = (width, height)
     elif width is None and height is not None:
         width = round(height / image.size[1] * image.size[0])
         size = (width, height)
-    else: 
+    else:
         raise ValueError("Necessary information is not given to `yield_size`. ")
     return size
 
 
-def resize(image:Image.Image,
-           size: Optional[Tuple[int, int]] = None,
-           *,
-           height: Optional[int]= None,
-           width: Optional[int]=None): 
-    """Resize. 
+def resize(
+    image: Image.Image,
+    size: Union[Tuple[int, int], float, None] = None,
+    *,
+    height: Optional[int] = None,
+    width: Optional[int] = None,
+):
+    """Resize.
     If `size` is given, it is the same as `PIL.Image.Image.resize`.
     If either `height` or `width` is given, then the other is determined so that aspect is maintained.
 
     """
-    if size is None and height is None and width in None:
-        raise ValueError(f"In `fairyimage.resize`, you should specify either `size`, `height`, or `width`. ")
-    size = yield_size(size=size, height=height, width=width)
+    if size is None and height is None and width is None:
+        raise ValueError(
+            f"In `fairyimage.resize`, you should specify either `size`, `height`, or `width`. "
+        )
+    size = yield_size(image, size=size, height=height, width=width)
     return image.resize(size)
-
