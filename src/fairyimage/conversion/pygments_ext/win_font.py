@@ -143,7 +143,9 @@ class WinFontCollector:
                 print(f"Multiple `{target}` styles found, so one is used.")
                 tags = [pair[0] for pair in candidates[target]]
                 # Consider the shortest one is appropriate. 
-                index = min(range(len(tags)), key=lambda index: len(tags[index]))
+                def _key(index):
+                    return len(tags[index].replace("(TrueType)", ""))
+                index = min(range(len(tags)), key=_key)
                 print(f"`target`: `{tags[index]}` is selected from `{tags}`.")
                 style_to_func[target] = candidates[target][index][1]
             else:
