@@ -94,7 +94,7 @@ import fairyimage as fi
 from fairyimage import from_source
 
 
-images = from_source(Path(__file__), style="friendly", font_size=18, n_image=2)
+images = from_source(Path(__file__), style="friendly", fontsize=18, n_image=2)
 image = fi.hstack(images, )
 image.save("pygments_usage.png")
 ```

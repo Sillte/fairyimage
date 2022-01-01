@@ -16,12 +16,13 @@ from pathlib import Path
 import subprocess
 
 from fairyimage import vstack
+from fairyimage.operations import resize
 from fairyimage.color import Color
 
 _this_folder = Path(__file__).absolute().parent
 
 
-def gen_documentclass(fontsize: int = 14):
+def gen_documentclass(fontsize: int = 12):
     DOCUMENT_CLASS = fr"""
     \documentclass[{fontsize}pt,landscape]{{ltjsarticle}}
     """.strip()
@@ -57,7 +58,21 @@ def gen_document(text, color: Color = None):
     return doc
 
 
-def via_pdf(text, fontsize: int = 12, dpi: int = 960, color: Color = None):
+def via_pdf(text, fontsize: int = 12, color: Color = None, target_dpi:int=96):
+    """
+
+    target_dpi: The dpi which corresponds to `fontsize`. 
+    """
+
+    # Here, fontsize is used 
+    # To avoid the harmful effects of expansion, 
+    # Large DPI is used for conversion to `PNG`, 
+    # and shrinkage is performed. 
+    
+    PNG_DPI = 960
+    LATEX_FONTSIZE = 12
+
+
     path = _this_folder / "__latex__.tex"
     pdf_path = _this_folder / "__latex__.pdf"
     if path.exists():
@@ -67,7 +82,7 @@ def via_pdf(text, fontsize: int = 12, dpi: int = 960, color: Color = None):
     if color is not None:
         color = Color(color)
 
-    documentclass = gen_documentclass(fontsize)
+    documentclass = gen_documentclass(LATEX_FONTSIZE)
     preamble = gen_preamble()
     doc = gen_document(text, color=color)
 
@@ -79,14 +94,19 @@ def via_pdf(text, fontsize: int = 12, dpi: int = 960, color: Color = None):
         raise ValueError("Failed to compile the latex.")
     assert ret.returncode == 0
     assert pdf_path.exists()
-    images = convert_from_path(pdf_path, transparent=True, dpi=dpi)
+    images = convert_from_path(pdf_path, transparent=True, dpi=PNG_DPI)
     image = vstack(images)
 
     # Since this image seems large, so
     # `trim` may require a lot of time.
     inv_image = ImageOps.invert(image.convert("RGB"))
-    cropped = image.crop(inv_image.getbbox())
-    return cropped
+    image = image.crop(inv_image.getbbox())
+
+    # The fontsize is modified. 
+    ratio = (fontsize * target_dpi) / (LATEX_FONTSIZE * PNG_DPI)
+    image = resize(image, ratio)
+
+    return image
 
 
 def via_matplotlib(formula, fontsize=18) -> Image.Image:

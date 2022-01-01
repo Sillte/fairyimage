@@ -39,14 +39,14 @@ from fairyimage.conversion.pygments_ext.win_font import WinFontCollector
 class FontManager(pygments.formatters.img.FontManager):
     """"""
 
-    def __init__(self, font_name=None, font_size=14):
+    def __init__(self, fontname=None, fontsize=14):
         if not sys.platform.startswith("win"):
             raise RuntimeError("This class cannot be used except Windows.")
-        if font_name is None:
-            self.font_name = "Courier New"
+        if fontname is None:
+            self.fontname = "Courier New"
         else:
-            self.font_name = font_name
-        self.fonts = WinFontCollector().get_fonts(self.font_name, font_size)
+            self.fontname = fontname
+        self.fonts = WinFontCollector().get_fonts(self.fontname, fontsize)
 
 
 class ImageFormatter(pygments.formatters.img.ImageFormatter):
@@ -61,19 +61,19 @@ class ImageFormatter(pygments.formatters.img.ImageFormatter):
     where empty line exist.  which can be used for dividing images vertically.
     """
 
-    default_font_name = "Yu Gothic UI"
-    default_font_size = 18
+    default_fontname = "Yu Gothic UI"
+    default_fontsize = 18
 
-    def __init__(self, font_name=None, font_size=18, **options):
-        if not font_name:
-            font_name = self.default_font_name
-        if not font_size:
-            font_size = self.default_font_size
+    def __init__(self, fontname=None, fontsize=18, **options):
+        if not fontname:
+            fontname = self.default_fontname
+        if not fontsize:
+            fontsize = self.default_fontsize
 
         super().__init__(**options)
 
         # The update related to `font` must be performed.
-        self.fonts = FontManager(font_name, font_size)
+        self.fonts = FontManager(fontname, fontsize)
         self.fontw, self.fonth = self.fonts.get_char_size()
 
         if self.line_numbers:
@@ -342,7 +342,7 @@ if __name__ == "__main__":
 
     content = Path(__file__).read_text()
     image_formatter = ImageFormatter(
-        font_name="Courier New", style="vim", font_size=36, line_numbers=True
+        fontname="Courier New", style="vim", fontsize=36, line_numbers=True
     )
     buf = BytesIO(highlight(content, PythonLexer(), image_formatter))
     image = Image.open(buf).copy()

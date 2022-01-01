@@ -16,8 +16,8 @@ from fairyimage.conversion.latex import via_pdf   # NOQA
 
 def from_source(
     source,
-    font_name=None,
-    font_size=None,
+    fontname=None,
+    fontsize=None,
     lexer="Python",
     style="friendly",
     n_image=1,
@@ -26,13 +26,13 @@ def from_source(
 ):
     """Convert source code (typically intended for `Python` ) to `PIL.Image.Image`.
 
-    As for `lexer`, `style`, `font_name`, `font_size`, refer to `pygments`.
+    As for `lexer`, `style`, `fontname`, `fontsize`, refer to `pygments`.
     Notice that if you set `n_image` is more than 1,
     the return becomes `List`.
     """
 
     caller = PygmentsCaller(
-        style=style, lexer=lexer, font_name=font_name, font_size=font_size, **options
+        style=style, lexer=lexer, fontname=fontname, fontsize=fontsize, **options
     )
     if n_image == 1:
         return caller.to_image(source)

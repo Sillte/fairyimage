@@ -75,19 +75,19 @@ class WinFontCollector:
         return specifiers
 
     @classmethod
-    def get_fonts(cls, font_name, font_size):
+    def get_fonts(cls, fontname, fontsize):
         """Return `dict` of `fonts`, whose keys are `pygments.formatter.img.STYLES`."""
-        ttf_files, ttf_values, ttc_files, ttc_values = cls._collect(font_name=font_name)
+        ttf_files, ttf_values, ttc_files, ttc_values = cls._collect(fontname=fontname)
         pair_infos = []  # (tag: str, func: callable).
         for ttf_file, ttf_value in zip(ttf_files, ttf_values):
-            info = cls._info_from_ttf(ttf_value, ttf_file, font_size)
+            info = cls._info_from_ttf(ttf_value, ttf_file, fontsize)
             pair_infos.append(info)
 
         for ttc_file, ttc_value in zip(ttc_files, ttc_values):
-            # Since `font_name` is specified here, 
+            # Since `fontname` is specified here, 
             # only related files are considered.
-            sub_infos = cls._info_from_ttc(ttc_value, ttc_file, font_size)
-            pair_infos += [(tag, func) for tag, func in sub_infos if tag.find(font_name) != -1]
+            sub_infos = cls._info_from_ttc(ttc_value, ttc_file, fontsize)
+            pair_infos += [(tag, func) for tag, func in sub_infos if tag.find(fontname) != -1]
 
         # General -> Specific.
         targets = ["NORMAL", "BOLD", "ITALIC", "BOLDITALIC"]
@@ -164,10 +164,10 @@ class WinFontCollector:
         return fonts
 
     @classmethod
-    def _collect(self, font_name=None):
+    def _collect(self, fontname=None):
         """Collect the informations of keys
         Args:
-            font_name: If specified, then the target is limited according to it.
+            fontname: If specified, then the target is limited according to it.
         """
         keynames = [
             (
@@ -200,8 +200,8 @@ class WinFontCollector:
             _, n_value, _ = winreg.QueryInfoKey(key)
             for v_index in range(n_value):
                 value_name, file_name, _ = winreg.EnumValue(key, v_index)
-                if font_name:
-                    if value_name.find(font_name) == -1:
+                if fontname:
+                    if value_name.find(fontname) == -1:
                         continue
                 file_type = Path(file_name).suffix.lower()
                 if file_type == ".ttf":
@@ -229,12 +229,12 @@ class WinFontCollector:
         return list(specifiers)
 
     @classmethod
-    def _info_from_ttf(clf, value_name, file_name, font_size):
+    def _info_from_ttf(clf, value_name, file_name, fontsize):
         """Return (`tag`, `callable`)"""
         tag = value_name.replace("(TrueType)", "")
 
         def font_open():
-            return ImageFont.truetype(file_name, font_size)
+            return ImageFont.truetype(file_name, fontsize)
 
         return tag, font_open
 
@@ -260,24 +260,24 @@ class WinFontCollector:
         return clf._fontnames_from_ttf(ttf_value_names)
 
     @classmethod
-    def _info_from_ttc(clf, value_name, file_name, font_size):
+    def _info_from_ttc(clf, value_name, file_name, fontsize):
         """Return [(`tag`, `callable`)]
         Notice the return becomes `list`.
         """
         class _FontOpener:
-            def __init__(self, file_name, font_size, index):
+            def __init__(self, file_name, fontsize, index):
                 self.index = index
                 self.file_name = file_name
-                self.font_size = font_size
+                self.fontsize = fontsize
 
             def __call__(self):
-                return ImageFont.truetype(self.file_name, self.font_size, index=self.index)
+                return ImageFont.truetype(self.file_name, self.fontsize, index=self.index)
 
         def font_open(index):
-            return ImageFont.truetype(file_name, font_size, index=index)
+            return ImageFont.truetype(file_name, fontsize, index=index)
 
         tags = _devide_ttc_value(value_name)
-        funcs = [_FontOpener(file_name, font_size, index) for index, tag in enumerate(tags)]
+        funcs = [_FontOpener(file_name, fontsize, index) for index, tag in enumerate(tags)]
 
         return list(zip(tags, funcs))
 

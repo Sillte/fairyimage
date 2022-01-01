@@ -29,17 +29,17 @@ class PygmentsCaller:
     For `Lexer`, please specify
     """
 
-    default_font_name = "Yu Gothic UI"
-    default_font_size = 18
+    default_fontname = "Yu Gothic UI"
+    default_fontsize = 18
 
-    def __init__(self, lexer="Python", font_name=None, font_size=None, **options):
-        if font_name is None:
-            font_name = self.default_font_name
-        if font_size is None:
-            font_size = self.default_font_size
+    def __init__(self, lexer="Python", fontname=None, fontsize=None, **options):
+        if fontname is None:
+            fontname = self.default_fontname
+        if fontsize is None:
+            fontsize = self.default_fontsize
         self.lexer = lexer
-        self.font_name = font_name
-        self.font_size = font_size
+        self.fontname = fontname
+        self.fontsize = fontsize
         self.options = options  # Formatter options.
 
     def to_image(self, source):
@@ -47,7 +47,7 @@ class PygmentsCaller:
         lexer = self._yield_lexer(self.lexer, source)
         source = self._to_content(source)
         formatter = pygments_ext.ImageFormatter(
-            font_name=self.font_name, font_size=self.font_size, **self.options
+            fontname=self.fontname, fontsize=self.fontsize, **self.options
         )
         buf = BytesIO(highlight(source, lexer, formatter))
         image = Image.open(buf).copy()
@@ -62,7 +62,7 @@ class PygmentsCaller:
         lexer = self._yield_lexer(self.lexer, source)
         source = self._to_content(source)
         formatter = pygments_ext.ImageFormatter(
-            font_name=self.font_name, font_size=self.font_size, **self.options
+            fontname=self.fontname, fontsize=self.fontsize, **self.options
         )
         divider = pygments_ext.ImageDivider(n_image, break_criterion=break_criterion)
         return divider(source, lexer, formatter)
@@ -75,13 +75,12 @@ class PygmentsCaller:
             return Path(arg).read_text()
         elif isinstance(arg, str):
             try:
-                 arg = Path(arg)
-                 if arg.exists():
-                     return arg.read_text()
+                 path = Path(arg)
+                 if path.exists():
+                     return path.read_text()
             except Exception: 
                 pass
-        else:
-            return arg
+        return arg
 
     def _yield_lexer(self, lexer, source):
         if isinstance(lexer, Lexer):
@@ -106,14 +105,14 @@ class PygmentsCaller:
 
 
 def to_image(
-    source, font_name=None, font_size=None, lexer="Python", style="default", **options
+    source, fontname=None, fontsize=None, lexer="Python", style="default", **options
 ):
     """Args:
         source: the content of text.
         lexer: The specifier of `pygments.lexer.Lexer`.
         style: the style
-        font_name: The name of font
-        font_size: The font size.
+        fontname: The name of font
+        fontsize: The font size.
 
     Note
     --------------------------------
@@ -123,15 +122,15 @@ def to_image(
 
     """
     caller = PygmentsCaller(
-        style=style, lexer=lexer, font_name=font_name, font_size=font_size, **options
+        style=style, lexer=lexer, fontname=fontname, fontsize=fontsize, **options
     )
     return caller.to_image(source)
 
 
 def to_images(
     source,
-    font_name=None,
-    font_size=None,
+    fontname=None,
+    fontsize=None,
     lexer="Python",
     style="default",
     n_image=3,
@@ -146,7 +145,7 @@ def to_images(
                          between images.
     """
     caller = PygmentsCaller(
-        style=style, lexer=lexer, font_name=font_name, font_size=font_size, **options
+        style=style, lexer=lexer, fontname=fontname, fontsize=fontsize, **options
     )
     return caller.to_images(source, n_image=n_image, break_criterion=concective)
 
@@ -156,10 +155,10 @@ if __name__ == "__main__":
     # 日本語サンプル
     content = Path(__file__).read_text()
 
-    image = to_image(content, font_name=None, line_numbers=False, style="friendly")
+    image = to_image(content, fontname=None, line_numbers=False, style="friendly")
     # image.show()
     images = to_images(
-        content, n_image=2, font_name=None, line_numbers=False, style="friendly"
+        content, n_image=2, fontname=None, line_numbers=False, style="friendly"
     )
     for image in images:
         image.show()
