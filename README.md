@@ -103,14 +103,17 @@ image.save("pygments_usage.png")
 #### Example of `from_latex`
 ```python
 from fairyimage import from_latex
+import fairyimage as fi
 TEXT = r"""
 \begin{align*}
 x = x^2  - x
 \end{align*}
 """
-image = from_latex(TEXT)
+image = from_latex(TEXT, fontsize=24)
+image = fi.contained(image, 200)
 image.save("latex.png")
 ```
+
 ![latex.png](static/latex.png)
 
 

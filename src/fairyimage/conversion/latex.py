@@ -58,7 +58,7 @@ def gen_document(text, color: Color = None):
     return doc
 
 
-def via_pdf(text, fontsize: int = 12, color: Color = None, target_dpi:int=96):
+def via_pdf(text, fontsize: int = 24, color: Color = None, target_dpi:int=96):
     """
 
     target_dpi: The dpi which corresponds to `fontsize`. 
@@ -71,7 +71,6 @@ def via_pdf(text, fontsize: int = 12, color: Color = None, target_dpi:int=96):
     
     PNG_DPI = 960
     LATEX_FONTSIZE = 12
-
 
     path = _this_folder / "__latex__.tex"
     pdf_path = _this_folder / "__latex__.pdf"
