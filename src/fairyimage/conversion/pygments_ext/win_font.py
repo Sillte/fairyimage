@@ -6,7 +6,7 @@ As of pygments==2.8.1, the construction of `fonts` is not sophisticated in Japan
 (At least, for my environment.)
 
 Especially, handling of `.ttc` file was not realized. 
-The classes and functions are mainly intended to realise this purpose.  
+The classes and functions are mainly intended to realize this purpose.  
 
 Since nomenclature of `ttc` files varies for each case,
 I wonder this script works in various environments.  
@@ -22,10 +22,9 @@ Specification (2021/05/05)
 * `tag` (str): the string specified in registry, which .is regarded as specifier of font file.
     - For `ttc` files, `&` is typicall used as a separator of `ttf` files... but it's just a guess.
 
-
 Crucial
 ---------
-At `fontname` of `WinFontController`, `Meiryo` does not work...
+* I do not understand the appropriate way, yet. (2022/01/01)
 
 """
 
@@ -91,7 +90,7 @@ class WinFontCollector:
             pair_infos += [(tag, func) for tag, func in sub_infos if tag.find(font_name) != -1]
 
         # General -> Specific.
-        targets = ["NORMAL", "ITALIC", "BOLD", "BOLDITALIC"]
+        targets = ["NORMAL", "BOLD", "ITALIC", "BOLDITALIC"]
         def _to_target(tag, func):
             font = func()
             name, style = font.getname()
@@ -129,7 +128,7 @@ class WinFontCollector:
         if not candidates["NORMAL"]:  # NORMAL is fundamental.
             # FALLBACK
             print(
-                "Cannot find the appropriate `NORMAL` font, so fallback measure is tried."
+                "Cannot find the appropriate `NORMAL` font, so fallback measure is tried.", 
             )
             candidates["NORMAL"] = [pair_infos[0]]
 
@@ -158,6 +157,7 @@ class WinFontCollector:
         result["BOLDITALIC"] = style_to_func.get(
             "BOLDITALIC", result.get("ITALIC", result.get("BOLD", result["NORMAL"]))
         )
+
 
         # Generate font objects.
         fonts = {key: func() for key, func in result.items()}
@@ -264,12 +264,21 @@ class WinFontCollector:
         """Return [(`tag`, `callable`)]
         Notice the return becomes `list`.
         """
+        class _FontOpener:
+            def __init__(self, file_name, font_size, index):
+                self.index = index
+                self.file_name = file_name
+                self.font_size = font_size
+
+            def __call__(self):
+                return ImageFont.truetype(self.file_name, self.font_size, index=self.index)
 
         def font_open(index):
             return ImageFont.truetype(file_name, font_size, index=index)
 
         tags = _devide_ttc_value(value_name)
-        funcs = [lambda: font_open(index) for index, tag in enumerate(tags)]
+        funcs = [_FontOpener(file_name, font_size, index) for index, tag in enumerate(tags)]
+
         return list(zip(tags, funcs))
 
 if __name__ == "__main__":

@@ -23,6 +23,17 @@ This is a personal practice for handling multiple images.
 pip install -e .
 ```
 
+#### Latex installment 
+
+Here, `lualatex` is used for `from_latex`.   
+I would recommend you to install via [TexLive](https://www.tug.org/texlive/acquire-netinstall.html).     
+
+##### TIPS
+* You should run the installer as **administrator** . 
+* You should add environment variable.  
+
+
+
 ### Gallery
 
 #### Making a thumbnail of logos.  (`thumbtail`)
@@ -89,9 +100,21 @@ image.save("pygments_usage.png")
 ```
 ![pygments_usage.png](static/pygments_usage.png)
 
+#### Example of `from_latex`
+```python
+from fairyimage import from_latex
+TEXT = r"""
+\begin{align*}
+x = x^2  - x
+\end{align*}
+"""
+image = from_latex(TEXT)
+image.save("latex.png")
+```
+![latex.png](static/latex.png)
+
 
 [tests/test_sample.py](./tests/test_sample.py) is the most basic and fundamental idea of the library is presented, 
-
 
 
 

@@ -51,5 +51,21 @@ def test_equalize():
         sizes = [image.size for image in fi.equalize([image1, image2], axis="height", mode="resize")]
         assert all(sizes[0][1] == size[1] for size in sizes)
 
+def test_trim():
+    """`fairyimage.trim`'s test.
+    Here, we would like to confirm the background is eliminated.
+    """
+    image = Image.fromarray(
+        np.random.uniform(0, 255, size=(32, 24, 4)).astype(np.uint8)
+    )
+
+    # Intentionally, append `background`.
+    background = Image.fromarray(np.zeros((16, 16, 4)).astype(np.uint8))
+    image = fi.vstack((image, background))        
+    image = fi.hstack((image, background))
+    image = fi.trim(image)
+    assert image.size == (24, 32)
+
+
 if __name__ == "__main__":
     pytest.main(["--capture=no"])

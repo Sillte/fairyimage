@@ -10,6 +10,7 @@ from figpptx import image_misc   # NOQA
 from fairyimage.conversion import source  # NOQA
 from fairyimage.conversion.source import PygmentsCaller  # NOQA
 from fairyimage.conversion.latex import via_matplotlib   # NOQA
+from fairyimage.conversion.latex import via_pdf   # NOQA
 
 
 
@@ -57,7 +58,8 @@ def from_artists(axes, **kwargs):
 
 
 def from_latex(latex, **kwargs):
-    return via_matplotlib(latex, **kwargs)
+    # return via_matplotlib(latex, **kwargs)
+    return via_pdf(latex, **kwargs)
 
 if __name__ == "__main__":
     pass

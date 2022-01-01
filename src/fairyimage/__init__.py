@@ -7,12 +7,13 @@ from figpptx.image_misc import to_image
 from fairyimage import version  # NOQA.
 from fairyimage.image_array import ImageArray # NOQA
 from fairyimage.editor import frame, make_logo, make_str, put, contained  # NOQA
-from fairyimage.editor import equalize  # NOQA
+from fairyimage.editor import equalize, trim  # NOQA
 from fairyimage.color import Color  # NOQA
 from fairyimage.operations import concatenate, vstack, hstack, resize, AlignMode  # NOQA
 from fairyimage.captioner import Captioner, captionize  # NOQA
 
 from fairyimage.conversion import from_source  # NOQA
+from fairyimage.conversion import from_latex  # NOQA
 from fairyimage.conversion.source import PygmentsCaller # NOQA
 
 

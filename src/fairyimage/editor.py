@@ -16,17 +16,17 @@ def make_logo(
     backcolor: Optional[Color] = None,
     margin: Union[float, int] = 0.1,
     *,
-    size: Optional[Union[int, Tuple[int, int]]]=None, 
+    size: Optional[Union[int, Tuple[int, int]]] = None,
     width: int = None,
     height: int = None,
 ) -> Image.Image:
-    """Making a logo.  
+    """Making a logo.
 
     s: content of string.
     fontsize: the size of font.
     fontcolor: the color of font.
     backcolor: the color of background
-    margin: what pixels or percentage is padded 
+    margin: what pixels or percentage is padded
     size: the spceified size.
     """
 
@@ -37,14 +37,13 @@ def make_logo(
         backcolor = (0, 0, 0, 0)
     backcolor = Color(backcolor)
 
-    # Solving the parameters of `size`, `height` and `width`.  
+    # Solving the parameters of `size`, `height` and `width`.
     if isinstance(size, int):
         size = (size, size)
     if height is not None and width is not None:
         size = (width, height)
 
     target = make_str(s, fontsize=fontsize, color=fontcolor)
-
 
     def _to_padded_size(size, margin) -> Tuple[int, int]:
         if isinstance(margin, int):
@@ -62,14 +61,14 @@ def make_logo(
         if isinstance(margin, Iterable):
             margin = [-elem for elem in margin]
         else:
-            margin = - margin
+            margin = -margin
         return _to_padded_size(size, margin)
 
-    if size: 
+    if size:
         acceptable_region = _from_padded_size(size, margin)
         target = contained(target, acceptable_region)
         background = Image.new("RGBA", size=size, color=backcolor.rgba)
-        return put(target , background)
+        return put(target, background)
     else:
         b_size = _to_padded_size(target.size, margin)
         background = Image.new("RGBA", size=b_size, color=backcolor.rgba)
@@ -103,13 +102,15 @@ def make_str(s: str, fontsize=48, color: Color = (0, 0, 0)) -> Image.Image:
 
     fig, ax = plt.subplots()
     color = Color(color)
-    t = ax.text(0.01,
-                0.01,
-                s,
-                color=_to_mcolor(color),
-                fontsize=fontsize,
-                fontfamily="Meiryo",
-                fontweight='bold')
+    t = ax.text(
+        0.01,
+        0.01,
+        s,
+        color=_to_mcolor(color),
+        fontsize=fontsize,
+        fontfamily="Meiryo",
+        fontweight="bold",
+    )
     fig.patch.set_alpha(0.0)
     fig.tight_layout()
     ax.axis("off")
@@ -189,20 +190,19 @@ def _frame_image_array(
     return images.map(_inner)
 
 
-
 def contained(image: Image.Image, region: Tuple[int, int]) -> Image.Image:
-    """Return the resized `Image.Image`,  
+    """Return the resized `Image.Image`,
 
     * The image's fits insize region.
-    * The aspect ratio of image is invariant. 
+    * The aspect ratio of image is invariant.
 
     Note
     ------------------------------------
-    Conceptually, this is equivalent to `PIL.Image.thumbnail`.   
+    Conceptually, this is equivalent to `PIL.Image.thumbnail`.
     """
     size = image.size
     width, height = size
-    if isinstance(region, (int ,float)):
+    if isinstance(region, (int, float)):
         region = [region, region]
     if len(region) != 2:
         raise ValueError(f"Invalid region specification. `{region}`")
@@ -210,22 +210,22 @@ def contained(image: Image.Image, region: Tuple[int, int]) -> Image.Image:
     return image.resize((round(size[0] * ratio), round(size[1] * ratio)))
 
 
-def equalize(images: Union[List[Image.Image], Dict[Any, Image.Image]],
-             axis=None, 
-             mode="resize"):
-    """Equalize the size of images. 
+def equalize(
+    images: Union[List[Image.Image], Dict[Any, Image.Image]], axis=None, mode="resize"
+):
+    """Equalize the size of images.
 
     Args:
         axis: Determines whether `width` should  be equal or `height` should be equal.
               It may be specified by `axis` argument. it is used.
-              If `both` or  `all`, then `width` and `height` becomes equal. 
+              If `both` or  `all`, then `width` and `height` becomes equal.
 
-        mode: Specify how to 
-            - `AlignMode`: `padding` is performed. 
+        mode: Specify how to
+            - `AlignMode`: `padding` is performed.
             - "resize": `resize` is performed.
 
     Conditions:
-    * Aspect ratio is invariant. 
+    * Aspect ratio is invariant.
     """
 
     if isinstance(images, dict):
@@ -236,13 +236,12 @@ def equalize(images: Union[List[Image.Image], Dict[Any, Image.Image]],
 
     sizes = [image.size for image in images]
 
-
     if axis is None:
         w_length = min(size[0] for size in sizes)
         w_costs = [abs(1 - w_length / size[0]) for size in sizes]
         w_cost = np.mean(w_costs)
         h_length = min(size[1] for size in sizes)
-        h_costs = [abs(1 - h_length / size[1])  for size in sizes]
+        h_costs = [abs(1 - h_length / size[1]) for size in sizes]
         h_cost = np.mean(h_costs)
         if np.max(np.max(w_costs)) < 0.08:
             axis = "both"
@@ -260,14 +259,15 @@ def equalize(images: Union[List[Image.Image], Dict[Any, Image.Image]],
 
     if axis in {"both", "all", "height-width"}:
         if mode != "resize":
-            print(f"Specified mode is not `resize`, but performed `resize` in `equalize`.")
+            print(
+                f"Specified mode is not `resize`, but performed `resize` in `equalize`."
+            )
         width = int(round(np.mean([size[0] for size in sizes])))
         height = int(round(np.mean([size[1] for size in sizes])))
         return [image.resize((width, height)) for image in images]
 
     if axis not in {"width", "height"}:
         raise ValueError("Invalid specification of axis.", axis)
-
 
     if mode == "resize":
         if axis == "width":
@@ -324,13 +324,12 @@ def equalize(images: Union[List[Image.Image], Dict[Any, Image.Image]],
                 return targets
             raise NotImplementedError("Bug.", mode)
 
-
         for image in images:
             if axis == "width":
                 offset = length - image.size[0]
             else:
                 offset = length - image.size[1]
-            if offset: 
+            if offset:
                 targets = _make_c_targets(image, axis, offset, mode)
                 r_images.append(concatenate(targets, axis=axis))
             else:
@@ -338,6 +337,41 @@ def equalize(images: Union[List[Image.Image], Dict[Any, Image.Image]],
         return r_images
 
     raise ValueError("Invalid specification of mode", mode)
+
+
+def trim(image: Image.Image):
+    """Performs the trimming of `image`
+
+    This funcion contains estimation, hence
+    it may take much time.
+    """
+    # For `RGBA` image, `alpha~ = 0 is surely cropped.
+    image = image.convert("RGBA")
+    bbox = image.split()[-1].getbbox()
+    image = image.crop(bbox)
+
+    width, height = image.size
+    array = np.array(image)
+
+    # Estimate background color.
+    points = [(0, 0), (height - 1, 0), (height - 1, width - 1), (height - 1, width - 1)]
+    cands = dict()
+    for point in points:
+        color = tuple(array[point])
+        cands[color] = cands.get(color, 0) + 1
+    background_color = max(cands, key=lambda k: cands[k])
+
+    yset = set()
+    xset = set()
+    for ci in range(len(background_color)):
+        ys, xs = np.where(array[:, :, ci] != background_color[ci])
+        yset |= set(ys)
+        xset |= set(xs)
+    left, right = min(xset), max(xset)
+    top, bottom = min(yset), max(yset)
+
+    output = array[top:bottom + 1, left:right + 1, :]
+    return Image.fromarray(output)
 
 
 if __name__ == "__main__":

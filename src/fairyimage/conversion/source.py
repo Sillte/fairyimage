@@ -73,6 +73,13 @@ class PygmentsCaller:
     def _to_content(self, arg):
         if isinstance(arg, Path):
             return Path(arg).read_text()
+        elif isinstance(arg, str):
+            try:
+                 arg = Path(arg)
+                 if arg.exists():
+                     return arg.read_text()
+            except Exception: 
+                pass
         else:
             return arg
 
