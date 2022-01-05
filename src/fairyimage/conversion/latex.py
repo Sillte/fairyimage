@@ -58,7 +58,10 @@ def gen_document(text, color: Color = None):
     return doc
 
 
-def via_pdf(text, fontsize: int = 24, color: Color = None, target_dpi:int=96):
+def via_pdf(text, fontsize: int = 24,
+            color: Color = None,
+            target_dpi: int=96, 
+            transparent: bool=True):
     """
 
     target_dpi: The dpi which corresponds to `fontsize`. 
@@ -87,19 +90,31 @@ def via_pdf(text, fontsize: int = 24, color: Color = None, target_dpi:int=96):
 
     lines = [documentclass, preamble, doc]
 
+
+    # When you use `ipython` or other's 
+    # it may corrupt the `lines`. 
+    # To counter this problem,  
+    # experimentally, `modification` of `lines` are performed.
+    lines = [line.strip() for line in "\n".join(lines).split("\n") if line.strip()]
+
     path.write_text("\n".join(lines))
-    ret = subprocess.run(f"lualatex {path}", shell=True, input="", cwd=path.parent)
+
+    ret = subprocess.run(f"lualatex {path}", shell=True, input="", cwd=path.parent, encoding="utf8")
     if ret.returncode != 0:
         raise ValueError("Failed to compile the latex.")
     assert ret.returncode == 0
     assert pdf_path.exists()
-    images = convert_from_path(pdf_path, transparent=True, dpi=PNG_DPI)
+    images = convert_from_path(pdf_path, transparent=transparent, dpi=PNG_DPI, fmt="png")
     image = vstack(images)
 
     # Since this image seems large, so
     # `trim` may require a lot of time.
-    inv_image = ImageOps.invert(image.convert("RGB"))
-    image = image.crop(inv_image.getbbox())
+    if transparent:
+        alpha = image.split()[-1]
+        image = image.crop(alpha.getbbox())
+    else:
+        inv_image = ImageOps.invert(image.convert("RGB"))
+        image = image.crop(inv_image.getbbox())
 
     # The fontsize is modified. 
     ratio = (fontsize * target_dpi) / (LATEX_FONTSIZE * PNG_DPI)
