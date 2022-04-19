@@ -97,7 +97,7 @@ def via_pdf(text, fontsize: int = 24,
     # experimentally, `modification` of `lines` are performed.
     lines = [line.strip() for line in "\n".join(lines).split("\n") if line.strip()]
 
-    path.write_text("\n".join(lines))
+    path.write_text("\n".join(lines), encoding="utf8")
 
     ret = subprocess.run(f"lualatex {path}", shell=True, input="", cwd=path.parent, encoding="utf8")
     if ret.returncode != 0:
