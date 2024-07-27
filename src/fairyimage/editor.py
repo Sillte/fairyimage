@@ -115,7 +115,7 @@ def make_str(s: str, fontsize=48, color: Color = (0, 0, 0)) -> Image.Image:
     fig.tight_layout()
     ax.axis("off")
     with io.BytesIO() as buf:
-        fig.savefig(buf, tranparent=True, format="png")
+        fig.savefig(buf, transparent=True, format="png")
         buf.seek(0)
         image = Image.open(buf)
         image.load()

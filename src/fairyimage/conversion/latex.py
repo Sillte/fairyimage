@@ -24,7 +24,7 @@ _this_folder = Path(__file__).absolute().parent
 
 def gen_documentclass(fontsize: int = 12):
     DOCUMENT_CLASS = fr"""
-    \documentclass[{fontsize}pt,landscape]{{ltjsarticle}}
+    \documentclass[{fontsize}pt,fleqn]{{ltjsarticle}}
     """.strip()
     return DOCUMENT_CLASS
 
