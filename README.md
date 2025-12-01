@@ -16,7 +16,7 @@ This is a personal practice for handling multiple images.
 ### Install Procedure
 
 #### Pre-requirement
-- Python3.8+? 
+- Python3.12+? 
 - Windows10 (Font's related problem...). 
 
 ```bat
