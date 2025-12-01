@@ -4,7 +4,6 @@ import numpy as np
 
 from figpptx.image_misc import to_image
 
-from fairyimage import version  # NOQA.
 from fairyimage.image_array import ImageArray # NOQA
 from fairyimage.editor import frame, make_logo, make_str, put, contained  # NOQA
 from fairyimage.editor import equalize, trim  # NOQA
@@ -17,7 +16,6 @@ from fairyimage.conversion import from_latex  # NOQA
 from fairyimage.conversion.source import PygmentsCaller # NOQA
 
 
-__version__ = version.version
 
 
 def thumbnail(

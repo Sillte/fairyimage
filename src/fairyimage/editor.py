@@ -3,6 +3,8 @@ from typing import Optional, Union, Tuple, Iterable, List, Dict, Any
 from PIL import Image, ImageOps
 import io
 import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use("Agg")
 
 from fairyimage.color import Color
 from fairyimage.image_array import ImageArray

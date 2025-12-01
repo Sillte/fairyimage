@@ -29,7 +29,7 @@ from pathlib import Path
 from typing import List, Sequence
 
 import numpy as np
-from pygments.formatters.img import STYLES, get_int_opt, FontNotFound
+from pygments.formatters.img import FontNotFound
 import pygments.formatters.img
 from pygments import highlight
 
@@ -37,16 +37,20 @@ from fairyimage.conversion.pygments_ext.win_font import WinFontCollector
 
 
 class FontManager(pygments.formatters.img.FontManager):
-    """"""
-
     def __init__(self, fontname=None, fontsize=14):
         if not sys.platform.startswith("win"):
             raise RuntimeError("This class cannot be used except Windows.")
+
         if fontname is None:
-            self.fontname = "Courier New"
-        else:
-            self.fontname = fontname
+            fontname = "Courier New"
+
+        self.fontname = fontname
+
+        # Windows フォントロード
         self.fonts = WinFontCollector().get_fonts(self.fontname, fontsize)
+
+        # Pygments 2.11+ の新属性に対応
+        self.variable = hasattr(self.fonts, "get_style")
 
 
 class ImageFormatter(pygments.formatters.img.ImageFormatter):

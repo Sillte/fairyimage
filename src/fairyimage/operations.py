@@ -6,7 +6,6 @@ from typing import Union, List, Tuple, Optional
 from PIL import Image
 import numpy as np
 
-from fairyimage import version  # NOQA.
 from fairyimage.color import Color  # NOQA
 
 

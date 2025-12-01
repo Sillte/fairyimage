@@ -1,63 +1,28 @@
 [build-system]
-requires = ["setuptools>=42", "wheel", "setuptools_scm[toml]>=3.4"]
+requires = ["setuptools>=65.0", "wheel"]
+build-backend = "setuptools.build_meta"
 
-[tool.setuptools_scm]
-write_to = "src/fairyimage/version.py"
+[project]
+name = "fairyimage"
+version = "0.0.1"
+description = "Numpy like operation of images"
+readme = "README.md"
+requires-python = ">=3.12"
+license = {text = "MIT"}
 
-[tool.pytest.ini_options]
-minversion = "6.0"
-addopts = "-ra -q --cov=src --cov-report=html"
-testpaths = ["tests"]
+dependencies = [
+    "Pillow", 
+    "matplotlib",
+    "pygments",
+    "pdf2image", 
+    "figpptx @ git+https://github.com/Sillte/figpptx.git"
+]
 
 
-# [TODO] Once, PEP621 is introduced to `setuptools` migrate `setup.cfg` to `pyproject.toml`
-# 
-#[project]
-#name = "fairyimage"
-#version = "0.0.1"
-#
-#description = "Lovely Spam! Wonderful Spam!"
-#readme = "README.rst"
-#requires-python = ">=3.8"
-#license = {file = "LICENSE.txt"}
-#keywords = ["egg", "bacon", "sausage", "tomatoes", "Lobster Thermidor"]
-#authors = [
-#  {email = "hi@pradyunsg.me"},
-#  {name = "Tzu-Ping Chung"}
-#]
-#maintainers = [
-#  {name = "Brett Cannon", email = "brett@python.org"}
-#]
-#classifiers = [
-#  "Development Status :: 4 - Beta",
-#  "Programming Language :: Python"
-#]
-#
-#dependencies = [
-#  "httpx",
-#  "gidgethub[httpx]>4.0.0",
-#  "django>2.1; os_name != 'nt'",
-#  "django>2.0; os_name == 'nt'"
-#]
-#
-#[project.optional-dependencies]
-#test = [
-#  "pytest < 5.0.0",
-#  "pytest-cov[all]"
-#]
-#
-#[project.urls]
-#homepage = "example.com"
-#documentation = "readthedocs.org"
-#repository = "github.com"
-#changelog = "github.com/me/spam/blob/master/CHANGELOG.md"
-#
-#[project.scripts]
-#spam-cli = "spam:main_cli"
-#
-#[project.gui-scripts]
-#spam-gui = "spam:main_gui"
-#
-#[project.entry-points."spam.magical"]
-#tomatoes = "spam:main_tomatoes"
-#
+[dependency-groups]
+dev = [
+  "pytest >=8.1.1", 
+  "mypy",
+  "flake8", 
+]
+
